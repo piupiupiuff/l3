@@ -1,29 +1,41 @@
+import io
+import sys
 import unittest
-from io import StringIO
-from unittest.mock import patch
-
-from lab3 import ConcreteCreator1, ConcreteCreator2
+from unittest.mock import MagicMock
+from lab3 import ConcreteCreator1, ConcreteCreator2, client_code
 
 
-class TestCreator(unittest.TestCase):
+class TestClientCode(unittest.TestCase):
     def setUp(self):
-        self.output = StringIO()
+        self.creator1 = ConcreteCreator1()
+        self.creator2 = ConcreteCreator2()
 
-    def tearDown(self):
-        self.output.close()
-
-    def test_concrete_creator1_operation(self):
-        creator1 = ConcreteCreator1()
-        with patch('sys.stdout', new=self.output) as fake_out:
-            creator1.operation()
-            self.assertEqual(fake_out.getvalue().strip(), "Concrete Product 1")
-
-    def test_concrete_creator2_operation(self):
-        creator2 = ConcreteCreator2()
-        with patch('sys.stdout', new=self.output) as fake_out:
-            creator2.operation()
-            self.assertEqual(fake_out.getvalue().strip(), "Concrete Product 2")
+    def test_client_code_with_creator1(self):
+        self.creator1.factory_method = MagicMock(
+            return_value=MagicMock(operation=MagicMock(return_value="Mocked Result")))
+        expected_output = "Client: I'm not aware of the creator's class, but it still works.\nCreator: The same creator's code has just worked with Mocked Result"
 
 
-if __name__ == '__main__':
+        captured_output = io.StringIO()
+        sys.stdout = captured_output
+        client_code(self.creator1)
+        sys.stdout = sys.__stdout__
+
+        self.assertEqual(captured_output.getvalue().strip(), expected_output)
+
+    def test_client_code_with_creator2(self):
+        self.creator2.factory_method = MagicMock(
+            return_value=MagicMock(operation=MagicMock(return_value="Mocked Result")))
+        expected_output = "Client: I'm not aware of the creator's class, but it still works.\nCreator: The same creator's code has just worked with Mocked Result"
+
+
+        captured_output = io.StringIO()
+        sys.stdout = captured_output
+        client_code(self.creator2)
+        sys.stdout = sys.__stdout__
+
+        self.assertEqual(captured_output.getvalue().strip(), expected_output)
+
+
+if __name__ == "__main__":
     unittest.main()
